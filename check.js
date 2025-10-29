@@ -9,7 +9,7 @@ const BASE_URL = "https://api.cardtrader.com/api/v2";
 // cartas e limites individuais em euros
 const CARDS_TO_CHECK = {
   "Command and Conquer": 73,
-  "Enlightened Strike": 52,
+  "Enlightened Strike": 32,
   "Mask of Momentum": 73,
   "The Weakest Link": 32,
   "Erase Face": 16,
@@ -145,4 +145,5 @@ async function fetchAllCardsWithRateLimit() {
 
 // executa
 fetchAllCardsWithRateLimit();
+
 
