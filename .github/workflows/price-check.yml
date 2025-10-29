@@ -1,29 +1,18 @@
-name: CardTrader Monitor
+name: Card Check
 
 on:
-  schedule:
-    - cron: "0 * * * *"  # roda a cada 1 hora
-  workflow_dispatch:     # permite rodar manualmente
-  
+  workflow_dispatch:
+
 jobs:
   check-cards:
     runs-on: ubuntu-latest
-
+    env:
+      BEARER_TOKEN: ${{ secrets.BEARER_TOKEN }}
+      PUSHOVER_USER_KEY: ${{ secrets.PUSHOVER_USER_KEY }}
+      PUSHOVER_API_TOKEN: ${{ secrets.PUSHOVER_API_TOKEN }}
     steps:
-      - name: Checkout do código
-        uses: actions/checkout@v3
-
-      - name: Configura Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: "18"
-
-      - name: Instala dependências
+      - uses: actions/checkout@v3
+      - name: Instalar dependências
         run: npm install node-fetch@2
-
-      - name: Executa script
-        env:
-          BEARER_TOKEN: ${{ secrets.BEARER_TOKEN }}
-          PUSHOVER_USER_KEY: ${{ secrets.PUSHOVER_USER_KEY }}
-          PUSHOVER_API_TOKEN: ${{ secrets.PUSHOVER_API_TOKEN }}
-        run: node seu_arquivo.js
+      - name: Rodar check
+        run: node check.js
