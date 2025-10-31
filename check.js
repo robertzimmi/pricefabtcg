@@ -122,19 +122,22 @@ async function fetchAllCardsWithRateLimit() {
 
   console.log(`🎯 Total de cartas encontradas: ${allFoundCards.length}`);
 
-  // envia notificação APENAS se encontrou algo
+    // envia notificação APENAS se encontrou algo
   if (allFoundCards.length > 0) {
     const summary = allFoundCards
-      .slice(0, 10)
-      .map(c => `[${c.expansion}] ${c.name} €${c.priceEuro.toFixed(2)} ≤ €${c.limit}`)
+      .slice(0, 10) // limita a 10 cartas na notificação
+      .map(c =>
+        `✅ [${c.expansion}] ${c.name} - €${c.priceEuro.toFixed(2)} / R$${c.priceBRL.toFixed(2)} - ${c.condition} - ${c.language} - Assinada: ${c.signed} - Limite: €${c.limit}`
+      )
       .join("\n");
 
     await sendPushoverMessage(
       "💡 Cartas abaixo do limite",
-      `${summary}\n\nTotal encontradas: ${allFoundCards.length}`
+      `${summary}\n🎯 Total de cartas encontradas: ${allFoundCards.length}`
     );
   }
 }
 
 fetchAllCardsWithRateLimit();
+
 
