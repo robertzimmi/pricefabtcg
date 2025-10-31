@@ -8,7 +8,7 @@ const BASE_URL = "https://api.cardtrader.com/api/v2";
 
 const CARDS_TO_CHECK = {
   "Command and Conquer": 73,
-  "Enlightened Strike": 50,
+  "Enlightened Strike": 35,
   "Mask of Momentum": 73,
   "The Weakest Link": 32,
   "Erase Face": 16,
@@ -16,7 +16,7 @@ const CARDS_TO_CHECK = {
   "Shelter from the Storm": 73,
   " This round's on me": 5,
   "Warmonger's Diplomacy": 25,
-  "Codex of Frailty": 25,
+  "Codex of Frailty": 30,
 };
 
 const delay = ms => new Promise(r => setTimeout(r, ms));
@@ -137,3 +137,4 @@ async function fetchAllCardsWithRateLimit() {
 }
 
 fetchAllCardsWithRateLimit();
+
