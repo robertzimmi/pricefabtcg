@@ -6,21 +6,21 @@ const PUSHOVER_USER_KEY = process.env.PUSHOVER_USER_KEY;
 const PUSHOVER_API_TOKEN = process.env.PUSHOVER_API_TOKEN;
 const BASE_URL = "https://api.cardtrader.com/api/v2";
 
-// cartas e limites individuais em euros
 const CARDS_TO_CHECK = {
   "Command and Conquer": 73,
-  "Enlightened Strike": 32,
+  "Enlightened Strike": 50,
   "Mask of Momentum": 73,
   "The Weakest Link": 32,
   "Erase Face": 16,
   "Censor": 9,
   "Shelter from the Storm": 73,
+  " This round's on me": 5,
+  "Warmonger's Diplomacy": 25,
+  "Codex of Frailty": 25,
 };
 
-// delay em ms
 const delay = ms => new Promise(r => setTimeout(r, ms));
 
-// quebra array em chunks
 function chunkArray(array, chunkSize) {
   const chunks = [];
   for (let i = 0; i < array.length; i += chunkSize) {
@@ -29,7 +29,6 @@ function chunkArray(array, chunkSize) {
   return chunks;
 }
 
-// função para enviar notificação via Pushover
 async function sendPushoverMessage(title, message) {
   if (!PUSHOVER_USER_KEY || !PUSHOVER_API_TOKEN) {
     console.error("❌ Faltando PUSHOVER_USER_KEY ou PUSHOVER_API_TOKEN nas variáveis de ambiente.");
@@ -60,7 +59,6 @@ async function sendPushoverMessage(title, message) {
   }
 }
 
-// busca conversão Euro → Real
 async function getEuroToBRL() {
   try {
     const res = await fetch("https://api.exchangerate-api.com/v4/latest/EUR");
@@ -71,7 +69,6 @@ async function getEuroToBRL() {
   }
 }
 
-// busca cartas por expansão
 async function fetchCardData(expansion, EURO_TO_BRL) {
   const url = `${BASE_URL}/marketplace/products?expansion_id=${expansion.id}`;
   try {
@@ -105,7 +102,6 @@ async function fetchCardData(expansion, EURO_TO_BRL) {
   }
 }
 
-// função principal com rate limit
 async function fetchAllCardsWithRateLimit() {
   const EURO_TO_BRL = await getEuroToBRL();
   console.log(`💱 1 Euro = R$${EURO_TO_BRL.toFixed(2)}\n`);
@@ -120,17 +116,14 @@ async function fetchAllCardsWithRateLimit() {
     if (i < chunks.length - 1) await delay(1000);
   }
 
-  // logs normais no console
   allFoundCards.forEach(c => {
     console.log(`✅ [${c.expansion}] ${c.name} - €${c.priceEuro.toFixed(2)} / R$${c.priceBRL.toFixed(2)} - ${c.condition} - ${c.language} - Assinada: ${c.signed} - Limite: €${c.limit}`);
   });
 
   console.log(`🎯 Total de cartas encontradas: ${allFoundCards.length}`);
 
-  // Envia notificação via Pushover
-  if (allFoundCards.length === 0) {
-    await sendPushoverMessage("CardTrader", "Nenhuma carta encontrada dentro dos limites configurados.");
-  } else {
+  // envia notificação APENAS se encontrou algo
+  if (allFoundCards.length > 0) {
     const summary = allFoundCards
       .slice(0, 10)
       .map(c => `[${c.expansion}] ${c.name} €${c.priceEuro.toFixed(2)} ≤ €${c.limit}`)
@@ -143,7 +136,4 @@ async function fetchAllCardsWithRateLimit() {
   }
 }
 
-// executa
 fetchAllCardsWithRateLimit();
-
-
