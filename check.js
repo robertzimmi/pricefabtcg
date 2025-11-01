@@ -17,6 +17,8 @@ const CARDS_TO_CHECK = {
   "This round's on me": 5,
   "Warmonger's Diplomacy": 25,
   "Codex of Frailty": 30,
+  "Blood Splattered Vest":49,
+  "Dragonscaler Flight Path":49,
 };
 
 const delay = ms => new Promise(r => setTimeout(r, ms));
@@ -139,6 +141,7 @@ async function fetchAllCardsWithRateLimit() {
 }
 
 fetchAllCardsWithRateLimit();
+
 
 
 
