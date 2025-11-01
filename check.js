@@ -14,7 +14,7 @@ const CARDS_TO_CHECK = {
   "Erase Face": 16,
   "Censor": 9,
   "Shelter from the Storm": 73,
-  " This round's on me": 5,
+  "This round's on me": 5,
   "Warmonger's Diplomacy": 25,
   "Codex of Frailty": 30,
 };
@@ -139,6 +139,7 @@ async function fetchAllCardsWithRateLimit() {
 }
 
 fetchAllCardsWithRateLimit();
+
 
 
 
