@@ -19,6 +19,16 @@ const CARDS_TO_CHECK = {
   "Codex of Frailty": 30,
   "Blood Splattered Vest":49,
   "Dragonscaler Flight Path":49,
+  "Amnesia":4.9,
+  "Fyendal's Spring Tunic":129,
+  "Quickdodge Flexors":129,
+  "Pain in the Backside":16,
+  "Concealed Blade":13,
+  "Throw Dagger":8.4,
+  "Wax Off":2.5,
+  "That All You Got?":9,
+  "Snag":8.4,
+  "Arcane Compliance":6.5,
 };
 
 const delay = ms => new Promise(r => setTimeout(r, ms));
@@ -141,6 +151,7 @@ async function fetchAllCardsWithRateLimit() {
 }
 
 fetchAllCardsWithRateLimit();
+
 
 
 
