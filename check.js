@@ -1,4 +1,5 @@
 const fetch = require("node-fetch"); // npm install node-fetch@2
+const fs = require("fs");
 const { MOCK_EXPANSIONS } = require("./mock_expansions");
 
 const BEARER_TOKEN = process.env.BEARER_TOKEN;
@@ -17,18 +18,18 @@ const CARDS_TO_CHECK = {
   "This round's on me": 5,
   "Warmonger's Diplomacy": 25,
   "Codex of Frailty": 30,
-  "Blood Splattered Vest":49,
-  "Dragonscaler Flight Path":49,
-  "Amnesia":4.9,
-  "Fyendal's Spring Tunic":129,
-  "Quickdodge Flexors":129,
-  "Pain in the Backside":16,
-  "Concealed Blade":13,
-  "Throw Dagger":8.4,
-  "Wax Off":2.5,
-  "That All You Got?":9,
-  "Snag":8.4,
-  "Arcane Compliance":6.5,
+  "Blood Splattered Vest": 49,
+  "Dragonscaler Flight Path": 49,
+  "Amnesia": 4.9,
+  "Fyendal's Spring Tunic": 129,
+  "Quickdodge Flexors": 129,
+  "Pain in the Backside": 16,
+  "Concealed Blade": 13,
+  "Throw Dagger": 8.4,
+  "Wax Off": 2.5,
+  "That All You Got?": 9,
+  "Snag": 8.4,
+  "Arcane Compliance": 6.5,
 };
 
 const delay = ms => new Promise(r => setTimeout(r, ms));
@@ -129,31 +130,72 @@ async function fetchAllCardsWithRateLimit() {
   }
 
   allFoundCards.forEach(c => {
-    console.log(`✅ [${c.expansion}] ${c.name} - €${c.priceEuro.toFixed(2)} / R$${c.priceBRL.toFixed(2)} - ${c.condition} - ${c.language} - Assinada: ${c.signed} - Limite: €${c.limit}`);
+    console.log(
+      `✅ [${c.expansion}] ${c.name} - €${c.priceEuro.toFixed(2)} / R$${c.priceBRL.toFixed(
+        2
+      )} - ${c.condition} - ${c.language} - Assinada: ${c.signed} - Limite: €${c.limit}`
+    );
   });
 
   console.log(`🎯 Total de cartas encontradas: ${allFoundCards.length}`);
-
-    // envia notificação APENAS se encontrou algo
-  if (allFoundCards.length > 0) {
-    const summary = allFoundCards
-      .slice(0, 10) // limita a 10 cartas na notificação
-      .map(c =>
-        `✅ [${c.expansion}] ${c.name} - €${c.priceEuro.toFixed(2)} / R$${c.priceBRL.toFixed(2)} - ${c.condition} - ${c.language} - Assinada: ${c.signed} - Limite: €${c.limit}`
-      )
-      .join("\n");
-
-    await sendPushoverMessage(
-      "💡 Cartas abaixo do limite",
-      `${summary}\n🎯 Total de cartas encontradas: ${allFoundCards.length}`
-    );
-  }
+  return allFoundCards;
 }
 
-fetchAllCardsWithRateLimit();
+// --- NOVA PARTE: comparação com última execução ---
+async function main() {
+  const filePath = "./last_results.json";
+  let previousCards = [];
 
+  const allFoundCards = await fetchAllCardsWithRateLimit();
 
+  // lê os resultados anteriores, se houver
+  if (fs.existsSync(filePath)) {
+    try {
+      previousCards = JSON.parse(fs.readFileSync(filePath, "utf-8"));
+    } catch (err) {
+      console.error("⚠️ Erro lendo last_results.json:", err);
+    }
+  }
 
+  // cria conjuntos para comparar
+  const currentSet = new Set(allFoundCards.map(c => `${c.expansion}-${c.name}`));
+  const previousSet = new Set(previousCards.map(c => `${c.expansion}-${c.name}`));
 
+  const newCards = allFoundCards.filter(c => !previousSet.has(`${c.expansion}-${c.name}`));
+  const soldCards = previousCards.filter(c => !currentSet.has(`${c.expansion}-${c.name}`));
 
+  // salva o novo resultado
+  fs.writeFileSync(filePath, JSON.stringify(allFoundCards, null, 2));
 
+  // evita spam
+  if (newCards.length === 0 && soldCards.length === 0) {
+    console.log("⏸️ Nenhuma mudança desde a última verificação. Nenhuma notificação enviada.");
+    return;
+  }
+
+  // monta mensagem
+  let message = "";
+
+  if (newCards.length > 0) {
+    message += "🆕 Novas cartas abaixo do limite:\n";
+    message += newCards
+      .map(
+        c =>
+          `✅ [${c.expansion}] ${c.name} - €${c.priceEuro.toFixed(2)} / R$${c.priceBRL.toFixed(
+            2
+          )} - ${c.condition} - ${c.language} - Assinada: ${c.signed} - Limite: €${c.limit}`
+      )
+      .join("\n");
+  }
+
+  if (soldCards.length > 0) {
+    message += `\n\n💨 Cartas vendidas ou acima do limite:\n`;
+    message += soldCards.map(c => `❌ [${c.expansion}] ${c.name}`).join("\n");
+  }
+
+  message += `\n🎯 Total atual: ${allFoundCards.length}`;
+
+  await sendPushoverMessage("📊 Atualização de preços FAB", message);
+}
+
+main();
