@@ -1,9 +1,9 @@
 name: Card Check
 
 on:
-  workflow_dispatch: # permite rodar manualmente também
+  workflow_dispatch: # permite rodar manualmente
   schedule:
-    - cron: "*/30 * * * *" # a cada 10 minutos
+    - cron: "*/30 * * * *" # a cada 30 minutos
 
 jobs:
   check-cards:
@@ -12,9 +12,25 @@ jobs:
       BEARER_TOKEN: ${{ secrets.BEARER_TOKEN }}
       PUSHOVER_USER_KEY: ${{ secrets.PUSHOVER_USER_KEY }}
       PUSHOVER_API_TOKEN: ${{ secrets.PUSHOVER_API_TOKEN }}
+
     steps:
-      - uses: actions/checkout@v3
-      - name: Instalar dependências
+      - name: 📦 Checkout do repositório
+        uses: actions/checkout@v4
+
+      - name: 💾 Restaurar último resultado (cache)
+        uses: actions/cache@v4
+        with:
+          path: last_results.json
+          key: card-check-cache
+
+      - name: 🧰 Instalar dependências
         run: npm install node-fetch@2
-      - name: Rodar check
+
+      - name: 🔍 Rodar verificação de preços
         run: node check.js
+
+      - name: 💾 Salvar novo resultado (cache atualizado)
+        uses: actions/cache/save@v4
+        with:
+          path: last_results.json
+          key: card-check-cache
