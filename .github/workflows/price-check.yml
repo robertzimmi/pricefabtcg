@@ -17,14 +17,24 @@ jobs:
       - name: 📦 Checkout do repositório
         uses: actions/checkout@v4
 
+      # 🧱 Cache do node_modules (para não reinstalar toda vez)
+      - name: ⚡ Restaurar cache do npm
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: npm-cache-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            npm-cache-
+
+      - name: 🧰 Instalar dependências
+        run: |
+          npm install node-fetch@2
+
       - name: 💾 Restaurar último resultado (cache)
         uses: actions/cache@v4
         with:
           path: last_results.json
           key: card-check-cache
-
-      - name: 🧰 Instalar dependências
-        run: npm install node-fetch@2
 
       - name: 🔍 Rodar verificação de preços
         run: node check.js
