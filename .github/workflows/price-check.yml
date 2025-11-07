@@ -5,6 +5,7 @@ on:
   schedule:
     - cron: "*/10 * * * *" # a cada 10 minutos
 
+# Evita execuções simultâneas sobrepondo dados
 concurrency:
   group: card-check
   cancel-in-progress: true
@@ -35,17 +36,22 @@ jobs:
         run: npm ci
         if: steps.cache-npm.outputs.cache-hit != 'true'
 
+      # 💾 Cache dinâmico do resultado anterior
       - name: 💾 Restaurar último resultado (cache)
+        id: cache-last
         uses: actions/cache@v4
         with:
           path: last_results.json
-          key: card-check-cache
+          key: card-check-cache-${{ github.run_id }}
+          restore-keys: |
+            card-check-cache-
 
       - name: 🔍 Rodar verificação de preços
         run: node check.js
 
+      # 💾 Salvar novo resultado com chave única (timestamp)
       - name: 💾 Salvar novo resultado (cache atualizado)
         uses: actions/cache/save@v4
         with:
           path: last_results.json
-          key: card-check-cache
+          key: card-check-cache-${{ github.run_id }}
