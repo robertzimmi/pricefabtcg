@@ -3,7 +3,11 @@ name: Card Check
 on:
   workflow_dispatch: # permite rodar manualmente
   schedule:
-    - cron: "*/30 * * * *" # a cada 30 minutos
+    - cron: "*/10 * * * *" # a cada 10 minutos
+
+concurrency:
+  group: card-check
+  cancel-in-progress: true
 
 jobs:
   check-cards:
@@ -19,16 +23,17 @@ jobs:
 
       # 🧱 Cache do node_modules (para não reinstalar toda vez)
       - name: ⚡ Restaurar cache do npm
+        id: cache-npm
         uses: actions/cache@v4
         with:
           path: ~/.npm
-          key: npm-cache-${{ hashFiles('**/package-lock.json') }}
+          key: npm-cache-${{ hashFiles('package-lock.json') }}
           restore-keys: |
             npm-cache-
 
       - name: 🧰 Instalar dependências
-        run: |
-          npm install node-fetch@2
+        run: npm ci
+        if: steps.cache-npm.outputs.cache-hit != 'true'
 
       - name: 💾 Restaurar último resultado (cache)
         uses: actions/cache@v4
