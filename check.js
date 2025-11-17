@@ -30,6 +30,16 @@ const CARDS_TO_CHECK = {
   "That All You Got?": 9,
   "Snag": 8.4,
   "Arcane Compliance": 6.5,
+  "Poison the Well":5,
+  "Overcrowded":6.5,
+  "Crown of Providence":115,
+  "Dual Threat":3.25,
+  "Cutting Retort":1.7,
+  "Nasty Surprise":1.7,
+  "Fearless Confrontation":17,
+  "Knives Out":1.7,
+  "Crown of Dominion":114,
+"Crown of Seeds":16.23,
 };
 
 const delay = ms => new Promise(r => setTimeout(r, ms));
@@ -199,3 +209,4 @@ async function main() {
 }
 
 main();
+
