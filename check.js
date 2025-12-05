@@ -40,6 +40,27 @@ const CARDS_TO_CHECK = {
   "Knives Out":1.7,
   "Crown of Dominion":114,
 "Crown of Seeds":16.23,
+  "Blood of the Dracai":20 ,
+  "Arknight Shard":160,
+  "Authority of Ataya":170,
+  "Eye of Ophidia":240,
+  "Deathmatch Arena":110,
+  "Grandeur of Valahai":110,
+  "Great Library of Solana":160,
+  "Heart of Fyendal":160,
+  "Korshem, Crossroad of Elements":23,
+  "Light of Sol":80,
+  "Master Cog":45,
+  "Mistcloak Gully":15,
+  "Plague Hive":39,
+  "Riches of Trōpal-Dhani":1,
+  "Schism of Chaos":32,
+  "Will of Arcana":47,
+
+  
+  
+  
+  
 };
 
 const delay = ms => new Promise(r => setTimeout(r, ms));
@@ -209,4 +230,5 @@ async function main() {
 }
 
 main();
+
 
