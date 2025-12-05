@@ -1,0 +1,70 @@
+import React, { useEffect, useState } from "react";
+
+// 🔥 ESTA VERSÃO NÃO USA API DO CARDTRADER
+// Ela busca direto o arquivo JSON gerado pela sua GitHub Action
+// Exemplo: /data/cards.json (coloque esse caminho no seu repositório)
+
+export default function SignedCardsPage() {
+  const [cards, setCards] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Caminho onde sua Action salva o JSON — você ajusta aqui
+  const JSON_URL = "/cards.json"; // ex: "/data/cards.json" ou GitHub Pages URL completa
+
+  useEffect(() => {
+    const fetchCards = async () => {
+      try {
+        const response = await fetch(JSON_URL, {
+          cache: "no-store", // força atualizar sempre
+        });
+
+        if (!response.ok) {
+          throw new Error("Erro ao carregar arquivo de cartas.");
+        }
+
+        const data = await response.json();
+        setCards(data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCards();
+
+    // Atualiza sozinho a cada 60 segundos
+    const interval = setInterval(fetchCards, 60000);
+    return () => clearInterval(interval);
+  }, []);
+
+  if (loading) return <div className="p-4 text-xl">Carregando cartas...</div>;
+  if (error) return <div className="p-4 text-red-500">Erro: {error}</div>;
+
+  return (
+    <div className="p-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+      {cards.map((card) => (
+        <div key={card.product_id} className="rounded-2xl shadow bg-white p-4 hover:scale-[1.02] transition">
+          <h2 className="font-bold text-lg mb-2 text-center">{card.name}</h2>
+
+          {card.image_url ? (
+            <img
+              src={card.image_url}
+              alt={card.name}
+              className="rounded mb-3 w-full object-cover"
+            />
+          ) : (
+            <div className="italic text-gray-500 text-center">Sem imagem</div>
+          )}
+
+          <div className="mt-2 text-sm text-gray-700">
+            <p><strong>ID:</strong> {card.product_id}</p>
+            <p><strong>Idioma:</strong> {card.language}</p>
+            <p><strong>Preço mínimo:</strong> {card.lowest_price}€</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
